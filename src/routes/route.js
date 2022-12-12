@@ -10,5 +10,4 @@ router.all("/*",async (req,res)=>{
     res.status(404).send({Status:false,msg:"Invalid request"})
 })
 
-
 module.exports=router

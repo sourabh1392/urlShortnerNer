@@ -11,7 +11,6 @@ const postUrl=async (req,res)=>{
 }
 
 
-
 const getUrl=async (req,res)=>{
     try{
 

@@ -80,6 +80,7 @@ If you haven’t used tinyurl.com before, please try creating a new shortened UR
 ```
 ## Response samples
 
+
 ### Url shorten response
 ```yaml
 {
