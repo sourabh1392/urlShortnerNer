@@ -18,13 +18,10 @@
   },
   "homepage": "https://github.com/sourabh1392/lithium#readme",
   "dependencies": {
-    "axios": "^1.2.1",
     "express": "^4.18.2",
     "mongoose": "^6.8.0",
-    "nanoid": "^4.0.0",
     "nodemon": "^2.0.20",
     "shortid": "^2.2.16",
-    "valid-url": "^1.0.9",
     "validator": "^13.7.0"
   }
 }
