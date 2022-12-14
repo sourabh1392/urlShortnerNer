@@ -30,6 +30,7 @@ const createUrl = async function (req, res) {
         }
         if (!longUrl)
             return res.status(400).send({ status: false, message: "Please provide LongUrl" });
+            
         if (!validator.isURL(longUrl)) {
             return res.status(400).send({ status: false, message: "Not a valid url" })
         }
@@ -60,9 +61,13 @@ const getUrl = async (req, res) => {
         if (!shortid.isValid(urlCode)) {
             return res.status(400).send({ status: false, message: "Please enter valid urlCode" })
         }
-        let cahcedUrl = await GET_ASYNC(`${req.params.urlCode}`)
-        if(cahcedUrl) {
-            return res.status(302).redirect(cahcedUrl.longUrl)
+        let cachedUrl = await GET_ASYNC(`${req.params.urlCode}`)
+        let objCache = JSON.parse(cachedUrl)// converting into object format  
+        if (objCache) {
+            return res.status(302).redirect(objCache.longUrl)
+        }
+        if (cachedUrl) {
+            return res.status(302).redirect(cachedUrl)
         }
         else {
             let presenturl = await urlModel.findOne({ urlCode: urlCode })
