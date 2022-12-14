@@ -5,22 +5,19 @@ const redis = require("redis")
 const { promisify } = require("util")
 const baseUrl = "http://localhost:3000/"
 
-
 const redisClient = redis.createClient(
     17269,
     "redis-17269.c264.ap-south-1-1.ec2.cloud.redislabs.com",
     { no_ready_check: true }
 );
 
-redisClient.auth("A5kenmat9j29n1jvv290k66ud9zv2e4uw9i0i0m2bfpb84mcius", function (err) {
+redisClient.auth("L9uCuh4Xbc3rXguxyUH9LQUOwl3UlXU1", function (err) {
     if (err) throw err;
 });
 
 redisClient.on("connect", async function () {
     console.log("Connected to Redis..");
 });
-
-//2. Prepare the functions for each command
 
 const SET_ASYNC = promisify(redisClient.SET).bind(redisClient);
 const GET_ASYNC = promisify(redisClient.GET).bind(redisClient);
@@ -65,7 +62,7 @@ const getUrl = async (req, res) => {
         }
         let cahcedUrl = await GET_ASYNC(`${req.params.urlCode}`)
         if(cahcedUrl) {
-            return res.status(302).redirect(presenturl.longUrl)
+            return res.status(302).redirect(cahcedUrl.longUrl)
         }
         else {
             let presenturl = await urlModel.findOne({ urlCode: urlCode })
@@ -80,21 +77,6 @@ const getUrl = async (req, res) => {
         return res.status(500).send({ status: false, message: err.message })
     }
 }
-
-
-
-
-// const fetchAuthorProfile = async function (req, res) 
-
-// //3. Start using the redis commad
-// let cahcedProfileData = await GET_ASYNC(`${req.params.authorId}`)
-// if(cahcedProfileData) {
-//   res.send(cahcedProfileData)
-// } else {
-//   let profile = await authorModel.findById(req.params.authorId);
-//   await SET_ASYNC(`${req.params.authorId}`, JSON.stringify(profile))
-//   res.send({ data: profile });
-// }
 
 module.exports = { createUrl, getUrl }
 
