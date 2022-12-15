@@ -34,17 +34,24 @@ const createUrl = async function (req, res) {
         if (!validator.isURL(longUrl)) {
             return res.status(400).send({ status: false, message: "Not a valid url" })
         }
-
-        const checkUrl = await urlModel.findOne({ longUrl: longUrl })
-        if (checkUrl) {
-            return res.status(400).send({ status: false, message: "LongUrl already used" })
+        let cachedLongUrl=await GET_ASYNC(`${longUrl}`)
+        console.log(cachedLongUrl)
+        let Link=JSON.parse(cachedLongUrl)
+        console.log(Link)
+        if(Link){
+            return res.status(200).send({ longUrl: Link.longUrl, urlCode: Link.urlCode, shortUrl: Link.shortUrl })
         }
+        // const checkUrl = await urlModel.findOne({ longUrl: longUrl })
+        // if (checkUrl) {
+        //     return res.status(400).send({ status: false, message: "LongUrl already used" })
+        // }
         const urlCode = shortid.generate(longUrl);
         const shortUrl = baseUrl + urlCode;
 
         const url = { longUrl: longUrl, urlCode: urlCode, shortUrl: shortUrl };
 
         const Data = await urlModel.create(url)
+        await SET_ASYNC(`${longUrl}`, JSON.stringify(Data))
         return res.status(201).send({ status: true, data: { longUrl: Data.longUrl, shortUrl: Data.shortUrl, urlCode: Data.urlCode } });
     }
     catch (err) {
@@ -62,19 +69,18 @@ const getUrl = async (req, res) => {
             return res.status(400).send({ status: false, message: "Please enter valid urlCode" })
         }
         let cachedUrl = await GET_ASYNC(`${req.params.urlCode}`)
-        let objCache = JSON.parse(cachedUrl)// converting into object format  
+        
+        let objCache = JSON.parse(cachedUrl)
+        
         if (objCache) {
             return res.status(302).redirect(objCache.longUrl)
-        }
-        if (cachedUrl) {
-            return res.status(302).redirect(cachedUrl)
         }
         else {
             let presenturl = await urlModel.findOne({ urlCode: urlCode })
             if (!presenturl) {
                 return res.status(404).send({ status: false, message: "Urlcode is not valid" })
             }
-            await SET_ASYNC(`${req.params.urlCode}`, JSON.stringify(presenturl))
+            await SET_ASYNC(`${urlCode}`, JSON.stringify(presenturl))
             return res.status(302).redirect(presenturl.longUrl)
         }
     }
