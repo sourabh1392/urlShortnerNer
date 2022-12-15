@@ -1,26 +1,27 @@
 const urlModel = require("../models/urlModel")
 const validator = require("validator")
 const shortid = require("shortid")
-const redis = require("redis")
-const { promisify } = require("util")
+// const redis = require("redis")
+// const { promisify } = require("util")
 const baseUrl = "http://localhost:3000/"
+const {SET_ASYNC,GET_ASYNC}=require("../redis/redis")
 
-const redisClient = redis.createClient(
-    17269,
-    "redis-17269.c264.ap-south-1-1.ec2.cloud.redislabs.com",
-    { no_ready_check: true }
-);
+// const redisClient = redis.createClient(
+//     17269,
+//     "redis-17269.c264.ap-south-1-1.ec2.cloud.redislabs.com",
+//     { no_ready_check: true }
+// );
 
-redisClient.auth("L9uCuh4Xbc3rXguxyUH9LQUOwl3UlXU1", function (err) {
-    if (err) throw err;
-});
+// redisClient.auth("L9uCuh4Xbc3rXguxyUH9LQUOwl3UlXU1", function (err) {
+//     if (err) throw err;
+// });
 
-redisClient.on("connect", async function () {
-    console.log("Connected to Redis..");
-});
+// redisClient.on("connect", async function () {
+//     console.log("Connected to Redis..");
+// });
 
-const SET_ASYNC = promisify(redisClient.SET).bind(redisClient);
-const GET_ASYNC = promisify(redisClient.GET).bind(redisClient);
+// const SET_ASYNC = promisify(redisClient.SET).bind(redisClient);
+// const GET_ASYNC = promisify(redisClient.GET).bind(redisClient);
 
 const createUrl = async function (req, res) {
     try {
