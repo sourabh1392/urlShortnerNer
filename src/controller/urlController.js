@@ -24,8 +24,9 @@ const GETEX_ASYNC = promisify(redisClient.GETEX).bind(redisClient)
 
 const createUrl = async function (req, res) {
     try {
-        const longUrl = req.body.longUrl;
-        if (Object.keys(longUrl).length == 0) {
+        const data= req.body;
+        let longUrl=data.longUrl;
+        if (Object.keys(data).length == 0) {
             return res.status(400).send({ status: false, message: "Please Enter Longurl to create shorturl" })
         }
         if (!longUrl)
@@ -37,7 +38,11 @@ const createUrl = async function (req, res) {
         let cachedLongUrl=await GETEX_ASYNC(`${longUrl}`)
         let Link=JSON.parse(cachedLongUrl)
         if(Link){
-            return res.status(200).send({ longUrl: Link.longUrl, urlCode: Link.urlCode, shortUrl: Link.shortUrl })
+            return res.status(200).send({ longUrl: Link.longUrl, shortUrl: Link.shortUrl , urlCode: Link.urlCode})
+        }
+        let urlFound=await urlModel.findOne({longUrl:longUrl})
+        if(urlFound){
+            return res.status(200).send({status:true,data:{longUrl:urlFound.longUrl,shortUrl:urlFound.shortUrl,urlCode:urlFound.urlCode}})
         }
         const urlCode = shortid.generate(longUrl);
         const shortUrl = baseUrl + urlCode;
@@ -55,12 +60,13 @@ const createUrl = async function (req, res) {
 
 const getUrl = async (req, res) => {
     try {
-        const urlCode = req.params.urlCode
+        const data = req.params
+        const urlCode=data.urlCode
         if (!urlCode) {
             return res.status(400).send({ status: false, message: "Enter urlCode" })
         }
         if (!shortid.isValid(urlCode)) {
-            return res.status(400).send({ status: false, message: "Please enter valid urlCode" })
+            return res.status(400).send({ status: false, message: "Urlcode is Invalid" })
         }
         let cachedUrl = await GETEX_ASYNC(`${req.params.urlCode}`)
         
@@ -72,12 +78,13 @@ const getUrl = async (req, res) => {
         else {
             let presenturl = await urlModel.findOne({ urlCode: urlCode })
             if (!presenturl) {
-                return res.status(404).send({ status: false, message: "Urlcode is not valid" })
+                return res.status(400).send({ status: false, message: "Urlcode is Invalid " })
             }
             await SETEX_ASYNC(`${urlCode}`,86400, JSON.stringify(presenturl))
             return res.status(302).redirect(presenturl.longUrl)
         }
     }
+    
     catch (err) {
         return res.status(500).send({ status: false, message: err.message })
     }
